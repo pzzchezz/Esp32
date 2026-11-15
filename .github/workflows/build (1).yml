@@ -1,0 +1,48 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 core 3.x and U8g2
+        run: |
+          arduino-cli config init
+          arduino-cli config set network.connection_timeout 600s
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@3.2.0
+          arduino-cli lib install U8g2
+
+      - name: Build both OLED variants
+        run: |
+          mkdir -p out
+          for v in "SH1106:1" "SSD1306:0"; do
+            name="${v%%:*}"
+            flag="${v##*:}"
+            arduino-cli compile \
+              --fqbn esp32:esp32:esp32 \
+              --build-property "compiler.cpp.extra_flags=-DOLED_IS_SH1106=${flag}" \
+              --export-binaries \
+              ESP32_Repeater
+            cp ESP32_Repeater/build/esp32.esp32.esp32/ESP32_Repeater.ino.merged.bin "out/Repeater_${name}.bin"
+            rm -rf ESP32_Repeater/build
+          done
+          ls -l out
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          files: out/*.bin
