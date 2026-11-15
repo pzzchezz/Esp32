@@ -21,9 +21,9 @@
 
 // ================== แก้ตรงนี้ ==================
 const char* HOME_SSID = "Pooi_2.4GHz";
-const char* HOME_PASS = "รหัสWiFiบ้าน";
-const char* AP_SSID   = "ESP32-Repeater";
-const char* AP_PASS   = "12345678";   // อย่างน้อย 8 ตัว
+const char* HOME_PASS = "phuhlxn123";
+const char* AP_SSID   = "ESP32_PU2.4GHz";
+const char* AP_PASS   = "87654321";   // อย่างน้อย 8 ตัว
 const int   AP_MAX_CLIENTS = 8;
 
 // ชนิดจอ OLED: 1 = SH1106, 0 = SSD1306
